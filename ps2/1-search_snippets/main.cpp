@@ -51,14 +51,16 @@ int main() {
       if (word_selection[word] == left_most_pointer) {
         // TODO(kevinkle): make this more efficient
         int new_left = n_positions;
+        word_selection[word] = i;
         for (int w = 0; w < n_words; w++) {
-          if (w != word) {
+          if (word_selection[w] != -1) {
             new_left = min(new_left, word_selection[w]);
           }
         }
         left_most_pointer = new_left;
+      } else {
+        word_selection[word] = i;
       }
-      word_selection[word] = i;
       if (words_found == n_words) {
         distance = pos - positions[left_most_pointer] + 1;
         cout << "left position: " << positions[left_most_pointer] << endl;
