@@ -29,7 +29,6 @@ int main() {
     }
 
     vector<int> positions(n_positions);
-    int position_counter = 0;
     int pos_i = 0;
     for ( const auto &p : query ) {
       positions[pos_i] = p.first;
