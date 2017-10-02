@@ -1,8 +1,9 @@
 
-#include <algorithm> 
+#include <algorithm>
 #include <vector>
 #include <iostream>
-#include <math.h> 
+#include <math.h>
+#include <queue>
 
 using namespace std;
 
@@ -18,62 +19,62 @@ bool sort_comparison(pair<int, int> p, pair <int, int> q) {
   return (height_q < height_p || (height_p == height_q && p.second < q.second));
 }
 
+bool compare(pair<int, int> p, pair <int, int> q) {
+  return p.second < q.second;
+}
+
 int main() {
   ios_base::sync_with_stdio(false);
   int n_test_cases;
   cin >> n_test_cases;
   for (int test_case = 0; test_case < n_test_cases; test_case++) {
     int n_balls;
+    int delay;
     cin >> n_balls;
-    vector<int> delays(n_balls);
-    vector<int> lost_children(n_balls); 
-    vector<pair<int, int> > min_heap(n_balls);
+    vector<int> taken(n_balls, 0);
+    vector<pair<int, int> > data(n_balls);
+    vector<pair<int, int> > balls(n_balls);
     for (int ball = 0; ball < n_balls; ball++) {
-      cin >> delays[ball];
-      data[ball] = make_pair(ball, delays[ball]);
+      cin >> delay;
+      balls[balls] = make_pair(ball, delay);
+      data[ball] = make_pair(ball, delay);
     }
-    data.sort(data.begin(), data.end(); comparison);
-    vector<pair<int, int> > min_heap(n_balls);
-    min_heap[0] = data[0];
-    make_heap(min_heap.begin(), min_heap.end(), comparison);
-
-    int reachable = n / 2;
-    int data_pointer = 0;
-    int n_defused_bombs = 0;
+    sort(data.begin(), data.end(), compare);
+    for (int i = 0; i < n_balls; i++) {
+      cout << data[i].first << " : " << data[i].second << endl;
+    }
+    int i = 0;
     bool result = true;
-    while (result) {
-      for(int i = 0; int < reachable; i++) {
-        data_pointer++;
-        min_heap.push_back(data[data_pointer]);
-        push_heap(min_heap.begin(), min_heap.end(), comparison);
-      }
-      pop_heap(min_heap.begin(),min_heap.end(), comparison);
-      pair<int, int> min = min_heap.back();
-      min_heap.pop_back();
-      if (min.second < n_defused_bombs) {
-        result = false;
+    int taken_count = 0;
+    while (result && taken_count < n_balls && i < n_balls) {
+      pair<int, int> p = data[i];
+      if (taken[p.first] > 1) {
+        i++;
       } else {
-        reachable--;
-	int pos = (min.first - 1) / 2
-        if (pos >= 0) {
-          lost_children[pos]++;
-          if (lost_children[pos] == 2) {
-            reachable++;
-            min_heap.push_back();
-            push_heap(min_heap.begin(), min_heap.end(), comparison);
+        if (p.second > taken_count) {
+          result = false;
+        } else {
+          queue<pair<int, int> > dependents;
+          dependents.push(p);
+          while (not dependents.empty()) {
+            v = dependents.front();
+            dependents.pop();
+            if (taken[v.first] == 0 ) {
+              if (v.second > taken_count) {
+                taken[v.first] = 1;
+                taken_count++;
+                if (taken[2*j + 1] < n_balls) {
+                  dependents.push(balls[2*j + 1]);
+                  dependents.push(balls[2*j + 2]);
+                }
+              } else {
+                result = false;
+              }
+            }
           }
         }
       }
     }
- 
-    for (int i = 1; i < n_balls; i++) {
-      
-      pop_heap (min_heap.begin(),min_heap.end(), comparison);
-      auto largest = min_heap.back();
-      min_heap.pop_back();
-      cout << "max heap after pop : " << largest.first << " : " << largest.second << '\n';
-    }
-    
   }
   return 0;
 }
