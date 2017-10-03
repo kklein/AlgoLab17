@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <vector>
 
@@ -37,7 +38,7 @@ int main() {
 
     int word;
     int left_most_pointer = -1;
-    int min_distance = n_positions;
+    int min_distance = numeric_limits<int>::max();
     int distance;
     int words_found = 0;
     vector<int> word_selection(n_words, -1);
@@ -62,11 +63,7 @@ int main() {
       }
       if (words_found == n_words) {
         distance = pos - positions[left_most_pointer] + 1;
-        //cout << "left position: " << positions[left_most_pointer] << endl;
-        //cout << "right position: " << pos << endl;
-        //cout << "current distance: " << distance << endl;
         min_distance = min(min_distance, distance);
-        //cout << "min distance: " << min_distance << endl;
       }
     }
     while (left_most_pointer < n_positions) {
@@ -75,17 +72,12 @@ int main() {
       words_found--;
       left_most_pointer++;
       if (word_selection[query[positions[left_most_pointer]]] == -1) {
-        //cout << "found " << query[positions[left_most_pointer]] << " again at position " << positions[left_most_pointer] << endl;
         word_selection[query[positions[left_most_pointer]]] == left_most_pointer;
         words_found++;
       }
       if (words_found == n_words) {
-        //cout << "left position: " << positions[left_most_pointer] << endl;
-        //cout << "right position: " << positions[n_positions - 1] << endl;
         distance = n_positions - 1 - positions[left_most_pointer] + 1;
-        //cout << "current distance: " << distance << endl;
         min_distance = min(min_distance, distance);
-        //cout << "min distance: " << min_distance << endl;
       }
     }
     //min_distance++;
