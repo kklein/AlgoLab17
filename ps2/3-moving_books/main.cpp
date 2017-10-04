@@ -13,35 +13,60 @@ int main() {
     int n_boxes;
     cin >> n_friends;
     cin >> n_boxes;
-    vector<int> strengths(n_friends);
-    vector<int> weights(n_boxes);
+    vector<int> strengths(100, 0);
+    vector<int> weights(100, 0);
+    int input_strength;
+    int max_strength = 0;
+    int min_strength = 99;
     for (int i = 0; i < n_friends; i++) {
-      cin >> strengths[i];
+      cin >> input_strength;
+      strengths[input_strength - 1]++;
+      max_strength = max(max_strength, input_strength - 1);
+      min_strength = min(min_strength, input_strength - 1);
     }
+    int input_weight;
+    int max_weight = 0;
+    int min_weight = 99;
     for (int i = 0; i < n_boxes; i++) {
-      cin >> weights[i];
+      cin >> input_weight;
+      weights[input_weight - 1]++;
+      max_weight = max(max_weight, input_weight - 1);
+      min_weight = min(min_weight, input_weight - 1);
     }
-    sort(strengths.begin(), strengths.end(), greater<int>());
-    sort(weights.begin(), weights.end(), greater<int>());
 
-    if (weights[0] > strengths[0]) {
+    if (max_weight > max_strength) {
       cout << "impossible" << endl;
     } else {
       int boxes_taken = 0;
       int iterations = 0;
       while (boxes_taken < n_boxes) {
-        int friend_pointer = 0;
-        bool progress = true;
-        int box_pointer = 0;
-        while (friend_pointer < n_friends and box_pointer < n_boxes) {
-          if (weights[box_pointer] > 0 && weights[box_pointer]  <= strengths[friend_pointer]) {
-            weights[box_pointer] = 0;
-            friend_pointer++;
-            boxes_taken++;
+	vector<int> friends(100);
+	copy(strengths.begin(), strengths.end(), friends.begin());
+        int strength_pointer = max_strength;
+        int weight_pointer = max_weight;
+        while (strength_pointer >= min_strength and weight_pointer >= min_weight) {
+          
+          if (weights[weight_pointer] <= 0) {
+            weight_pointer--;
+            //cout << "decrease weight_pointer to: " << weight_pointer << endl;
+          } else if (friends[strength_pointer] <= 0) {
+            strength_pointer--;
+            //cout << "decrease strength_pointer to: " << strength_pointer << endl;
+          } else {
+            //cout << "else clause" << endl;
+            if (weight_pointer <= strength_pointer) {
+              weights[weight_pointer]--;
+              friends[strength_pointer]--;
+              boxes_taken++;
+              //cout << "Strength :" << strength_pointer << " ,weight: " <<
+              //    weight_pointer << ", new count: " << boxes_taken << endl;
+            } else {
+              weight_pointer--;
+            }
           }
-          box_pointer++;
         }
         iterations++;
+	//cout << "finished iteration: " << iterations << endl;
       }
       cout << 3 * iterations - 1 << endl;
     }
