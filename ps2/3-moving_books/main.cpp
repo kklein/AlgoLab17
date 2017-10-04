@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -5,7 +6,6 @@ using namespace std;
 
 int main() {
   ios_base::sync_with_stdio(false);
-  return 0;
   int n_test_cases;
   cin >> n_test_cases;
   for (int test_case = 0; test_case < n_test_cases; test_case++) {
@@ -30,13 +30,14 @@ int main() {
       int boxes_taken = 0;
       int iterations = 0;
       while (boxes_taken < n_boxes) {
-        int friend_index = 0;
+        int friend_pointer = 0;
         bool progress = true;
         int box_pointer = 0;
-        while (friend_index < n_friends and box_pointer < n_boxes) {
-          if (weights[box_pointer] > 0) {
+        while (friend_pointer < n_friends and box_pointer < n_boxes) {
+          if (weights[box_pointer] > 0 && weights[box_pointer]  <= strengths[friend_pointer]) {
             weights[box_pointer] = 0;
-            friend_index++;
+            friend_pointer++;
+            boxes_taken++;
           }
           box_pointer++;
         }
@@ -45,4 +46,5 @@ int main() {
       cout << 3 * iterations - 1 << endl;
     }
   }
+  return 0;
 }
