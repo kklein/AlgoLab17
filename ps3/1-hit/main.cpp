@@ -1,7 +1,5 @@
-#include <algorithm>
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <iostream>
-#include <vector>
 
 typedef CGAL::Exact_predicates_exact_constructions_kernel K;
 typedef K::Point_2 P;
@@ -21,7 +19,6 @@ int main () {
     std::cin >> rx;
     std::cin >> ry;
     R ray = R(P(rx0, ry0), P(rx, ry));
-    int i = 0;
     bool still_searching = true;
     for (int i = 0; i < n_segments; i++) {
       long long sx0;
