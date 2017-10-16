@@ -36,18 +36,15 @@ int main() {
     Min_circle  mc(points.begin(), points.end(), true);
     double min_radius = std::numeric_limits<double>::max();
     for (int support = 0; support < mc.number_of_support_points(); support++) {
-      std::vector<P> support_points(mc.number_of_support_points() - 1);
       int i = 0;
-      for (int support_prime = 0; support_prime < mc.number_of_support_points(); support_prime++) {
-        if (support_prime == support) {
-          continue;
-        }
-        support_points[i] = mc.support_point(support_prime);
+      while (points[i] != mc.support_point(support)) {
         i++;
       }
-      Min_circle mc_prime(support_points.begin(), support_points.end(), true);
-      double new_radius = ceil_to_double(CGAL::sqrt(mc.circle().squared_radius()));
+      points[i] = points[(i + 1) % n_points];
+      Min_circle mc_prime(points.begin(), points.end(), true);
+      double new_radius = ceil_to_double(CGAL::sqrt(mc_prime.circle().squared_radius()));
       min_radius = std::min(min_radius, new_radius);
+      points[i] = mc.support_point(support);
     }
     CGAL::set_pretty_mode( std::cout);
     std::cout << min_radius << std::endl;
