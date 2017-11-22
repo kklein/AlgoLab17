@@ -35,12 +35,12 @@ int main() {
         qp.set_a(asset_index, 0, costs[asset_index]);
         qp.set_a(asset_index, 1, -returns[asset_index]);
         for (int asset_index2 = 0; asset_index2 < n_assets; asset_index2++) {
-          qp.set_d(asset_index, asset_index2, covariances[asset_index][asset_index2]);
+          qp.set_d(asset_index, asset_index2, 2*covariances[asset_index][asset_index2]);
         }
       }
       qp.set_b(0, max_cost);
       qp.set_b(1, -min_return);
-      Solution s = CGAL::solve_quadratic_program(qp, ET());
+      Solution s = CGAL::solve_nonnegative_quadratic_program(qp, ET());
       if (s.is_optimal() and s.objective_value() <= max_variance) {
         std::cout << "Yes." << std::endl;
       } else {
@@ -49,6 +49,5 @@ int main() {
     }
     std::cin >> n_assets >> n_clients;
   }
-
   return 0;
 }
