@@ -1,0 +1,10 @@
+*
+!*.txt
+!*.pdf
+!*.cpp
+!*.in
+!*.out
+!*.sin
+!*.sout
+!*.tin
+!*.tout
