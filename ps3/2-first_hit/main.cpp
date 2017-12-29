@@ -1,6 +1,5 @@
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <iostream>
-#include <limits>
 
 //TODO(kevinkle): remove
 #include <boost/optional/optional_io.hpp>

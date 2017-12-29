@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/kevin/Code/AlgoLab17/cgal-examples/hello-really-exact.cpp
+CGAL/Exact_predicates_exact_constructions_kernel_with_sqrt.h
+-
+iostream
+-
+cmath
+-
+

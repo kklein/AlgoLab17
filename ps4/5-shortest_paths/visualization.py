@@ -76,7 +76,7 @@ class GUI:
 	# Width and height of the drawing canvas
 	w = 1200
 	h = 800
-	r = 2	
+	r = 2
 	latmid = 0
 	lonmid = 0
 	vertex_order = []
@@ -119,8 +119,8 @@ class GUI:
 			lonmin = min(lonmin, lon)
 			lonmax = max(lonmax, lon)
 		self.latmid = (latmin+latmax)/2
-		self.lonmid = (lonmin+lonmax)/2	
-		# determine the scale that perfectly fits the input	
+		self.lonmid = (lonmin+lonmax)/2
+		# determine the scale that perfectly fits the input
 		intended_scale = min(self.w/((latmax-latmin)*math.cos(self.lonmid/180*math.pi)), self.h/(lonmax-lonmin))
 		intended_scale = intended_scale * 0.9
 		# determine the matching scale of Google maps
@@ -192,7 +192,7 @@ class GUI:
 	def draw_graph(self):
 		cn = 0
 		cm = 0
-		# limit the number of nodes and edges drawn to not slow down 
+		# limit the number of nodes and edges drawn to not slow down
 		# the visualization for huge graphs
 		drawing_limit = 5000
 		for i in self.edge_order:

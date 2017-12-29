@@ -1,0 +1,4 @@
+/home/kevin/Code/AlgoLab17/ps7/2-diet/CMakeFiles/rebuild_cache.dir
+/home/kevin/Code/AlgoLab17/ps7/2-diet/CMakeFiles/main2.dir
+/home/kevin/Code/AlgoLab17/ps7/2-diet/CMakeFiles/edit_cache.dir
+/home/kevin/Code/AlgoLab17/ps7/2-diet/CMakeFiles/main.dir

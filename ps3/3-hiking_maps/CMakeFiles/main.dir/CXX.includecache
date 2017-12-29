@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/kevin/Code/AlgoLab17/ps3/3-hiking_maps/main.cpp
+algorithm
+-
+CGAL/Boolean_set_operations_2.h
+-
+CGAL/Exact_predicates_inexact_constructions_kernel.h
+-
+iostream
+-
+vector
+-
+boost/optional/optional_io.hpp
+-
+

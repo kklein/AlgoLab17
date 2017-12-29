@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/kevin/Code/AlgoLab17/ps3/1-hit/main.cpp
+algorithm
+-
+CGAL/Exact_predicates_exact_constructions_kernel.h
+-
+iostream
+-
+vector
+-
+

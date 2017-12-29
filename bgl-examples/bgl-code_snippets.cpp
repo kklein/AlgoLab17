@@ -1,5 +1,5 @@
 // ALGOLAB BGL Tutorial 1
-// Code snippets demonstrating 
+// Code snippets demonstrating
 // - graph definitions
 // - several algorithms (components, distance-based algorithms, maximum matching)
 // - how to pass exterior property maps
@@ -33,18 +33,18 @@ using namespace boost;
 // =====================
 // Graph Type, OutEdgeList Type, VertexList Type, (un)directedS
 typedef adjacency_list<vecS, vecS, undirectedS,		// Use vecS for the VertexList! Choosing setS for the OutEdgeList disallows parallel edges.
-		no_property,				// interior properties of vertices	
+		no_property,				// interior properties of vertices
 		property<edge_weight_t, int> 		// interior properties of edges
 		>					Graph;
 typedef graph_traits<Graph>::edge_descriptor		Edge;		// Edge Descriptor: an object that represents a single edge.
-typedef graph_traits<Graph>::vertex_descriptor		Vertex;		// Vertex Descriptor: with vecS vertex list, this is really just an int in the range [0, num_vertices(G)).	
+typedef graph_traits<Graph>::vertex_descriptor		Vertex;		// Vertex Descriptor: with vecS vertex list, this is really just an int in the range [0, num_vertices(G)).
 typedef graph_traits<Graph>::edge_iterator		EdgeIt;		// to iterate over all edges
 typedef graph_traits<Graph>::out_edge_iterator		OutEdgeIt;	// to iterate over all outgoing edges of a vertex
 typedef property_map<Graph, edge_weight_t>::type	WeightMap;	// property map to access the interior property edge_weight_t
 
 
 // Functions
-// ========= 
+// =========
 void testcases() {
 	// Create Graph, Vertices and Edges
 	// ================================
@@ -69,7 +69,7 @@ void testcases() {
 	// Connected components
 	// ====================
 	vector<int> componentmap(V);	// We MUST use such a vector as an Exterior Property Map: Vertex -> Component
-	int ncc = connected_components(G, make_iterator_property_map(componentmap.begin(), get(vertex_index, G))); 
+	int ncc = connected_components(G, make_iterator_property_map(componentmap.begin(), get(vertex_index, G)));
 	cout << "Connected components: " << ncc << "\n";
 	vector<int> componentsize(ncc);
 	// Iterate over all vertices
@@ -106,7 +106,7 @@ void testcases() {
 	// EdgeIterators
 	// =============
 	EdgeIt ebeg, eend;
-	for (tie(ebeg, eend) = edges(G); ebeg != eend; ++ebeg) {	// edges(G) returns a pair of iterators which define a range of all edges. 
+	for (tie(ebeg, eend) = edges(G); ebeg != eend; ++ebeg) {	// edges(G) returns a pair of iterators which define a range of all edges.
 		// For undirected graphs, each edge is visited once, with some orientation.
 		// ebeg is EdgeIterator, *ebeg is EdgeDescriptor
 		Vertex u = source(*ebeg, G);
@@ -120,16 +120,16 @@ void testcases() {
 		if (predmap[i] == i && i != start)
 			cout << i << " ";
 	cout << "\n" << endl;
-	
 
-	
+
+
 	// Prim minimum spanning tree
 	// ==========================
 	vector<Vertex> primpredmap(V);	// We MUST use this vector as an Exterior Property Map: Vertex -> Prim Predecessor
 	start = 6;
 	prim_minimum_spanning_tree(G, make_iterator_property_map(primpredmap.begin(), get(vertex_index, G)));	// Prim from *vertices(G).first (usually 0)
 	prim_minimum_spanning_tree(G, make_iterator_property_map(primpredmap.begin(), get(vertex_index, G)),	// Prim from user-defined start,
-			root_vertex(start));									// old primpredmap gets reset first!	
+			root_vertex(start));									// old primpredmap gets reset first!
 	cout << "Prim builds a minimum spanning tree (of node " << start << "'s component) of total weight: ";
 	int totalweight = 0;
 	for (int i = 0; i < V; ++i) {
@@ -140,7 +140,7 @@ void testcases() {
 		}
 	}
 	cout << totalweight << "\n";
-	cout << "Edges in Prim's minimum spanning:\n";	
+	cout << "Edges in Prim's minimum spanning:\n";
 	// iterate over all vertices
 	for (int i = 0; i < V; ++i) {
 		// OutEdgeIterators
@@ -160,12 +160,12 @@ void testcases() {
 	// Kruskal minimum spanning tree
 	// =============================
 	vector<Edge>	mst; // We must use this vector to store the MST edges (not as a property map!)
-	// We can use the following vectors as Exterior Property Maps if we want to access additional information computed by Union-Find:	
+	// We can use the following vectors as Exterior Property Maps if we want to access additional information computed by Union-Find:
 	vector<Vertex>	kruskalpredmap(V);	// Stores predecessors needed for Union-Find (NOT the MST!)
 	vector<int>	rankmap(V);		// Stores ranks needed for Union-Find
-	kruskal_minimum_spanning_tree(G, back_inserter(mst),	// kruskal_minimum_spanning_tree(G, back_inserter(mst)); would be fine as well 
+	kruskal_minimum_spanning_tree(G, back_inserter(mst),	// kruskal_minimum_spanning_tree(G, back_inserter(mst)); would be fine as well
 			rank_map(make_iterator_property_map(rankmap.begin(), get(vertex_index, G))).
-			predecessor_map(make_iterator_property_map(kruskalpredmap.begin(), get(vertex_index, G))));			
+			predecessor_map(make_iterator_property_map(kruskalpredmap.begin(), get(vertex_index, G))));
 	cout << "Kruskal builds a minimum spanning tree of total weight: ";
 	totalweight = 0;
 	// go through the minimum spanning tree with an iterator
@@ -175,7 +175,7 @@ void testcases() {
 	}
 	cout << totalweight << "\n";
 	cout << "Edges in Kruskal's minimum spanning tree:\n";
-	// go through the minimum spanning tree 
+	// go through the minimum spanning tree
 	for (size_t i = 0; i < mst.size(); ++i) {
 		Edge e = mst[i];
 		Vertex u = source(e, G);
@@ -189,17 +189,17 @@ void testcases() {
 	// =====================================
 	vector<Vertex> matemap(V);		// We MUST use this vector as an Exterior Property Map: Vertex -> Mate in the matching
 	edmonds_maximum_cardinality_matching(G, make_iterator_property_map(matemap.begin(), get(vertex_index, G)));
-	// Using the matemap 
+	// Using the matemap
 	// =================
 	const Vertex NULL_VERTEX = graph_traits<Graph>::null_vertex();	// unmatched vertices get the NULL_VERTEX as mate.
 	int matchingsize = matching_size(G, make_iterator_property_map(matemap.begin(), get(vertex_index, G)));
-	cout << "A maximum matching has " << matchingsize << " edges " << " and " << (V-2*matchingsize) << " unmatched vertices.\n"; 
+	cout << "A maximum matching has " << matchingsize << " edges " << " and " << (V-2*matchingsize) << " unmatched vertices.\n";
 	cout << "Edges in the maximum matching:\n";
-	for (int i = 0; i < V; ++i) 
+	for (int i = 0; i < V; ++i)
 		if (matemap[i] != NULL_VERTEX && i < matemap[i])	// i is matched && we only print the edge once
 			cout << i << " -- " << matemap[i] << "\n";
 	cout << "List of unmatched vertices: ";
-	for (int i = 0; i < V; ++i) 
+	for (int i = 0; i < V; ++i)
 		if (matemap[i] == NULL_VERTEX)	// i is not matched
 			cout << i << " ";
 	cout << "\n" << endl;
@@ -212,4 +212,3 @@ int main() {
 	while(T--)	testcases();
 	return 0;
 }
-

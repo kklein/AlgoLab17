@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/kevin/Code/AlgoLab17/ps7/3-portfolios/main.cpp
+iostream
+-
+vector
+-
+CGAL/basic.h
+-
+CGAL/Gmpq.h
+-
+CGAL/QP_functions.h
+-
+CGAL/QP_models.h
+-
+

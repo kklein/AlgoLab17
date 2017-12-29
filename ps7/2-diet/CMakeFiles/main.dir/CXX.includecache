@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/kevin/Code/AlgoLab17/ps7/2-diet/main.cpp
+iostream
+-
+CGAL/basic.h
+-
+CGAL/Gmpz.h
+-
+CGAL/QP_models.h
+-
+CGAL/QP_functions.h
+-
+

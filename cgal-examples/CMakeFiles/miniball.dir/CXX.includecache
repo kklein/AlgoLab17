@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/kevin/Code/AlgoLab17/cgal-examples/miniball.cpp
+CGAL/Exact_predicates_exact_constructions_kernel.h
+-
+CGAL/Min_circle_2.h
+-
+CGAL/Min_circle_2_traits_2.h
+-
+iostream
+-
+
