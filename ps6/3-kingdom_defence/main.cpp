@@ -73,16 +73,15 @@ void testcases() {
   int n_locations, n_paths, n_soldiers, n_soldiers_min, n_soldiers_max,
       location_a, location_b;
   int total_n_soldiers_min = 0;
+  int total_n_soldiers_min_eddges = 0;
   std::cin >> n_locations >> n_paths;
-  std::vector<int> incoming(n_locations, 0);
-  std::vector<int> outgoing(n_locations, 0);
 
   // Create Graph and Maps
-	Graph G(n_locations);
-	EdgeCapacityMap capacitymap = boost::get(boost::edge_capacity, G);
-	ReverseEdgeMap revedgemap = boost::get(boost::edge_reverse, G);
-	ResidualCapacityMap rescapacitymap = boost::get(boost::edge_residual_capacity, G);
-	EdgeAdder eaG(G, capacitymap, revedgemap);
+  Graph G(n_locations);
+  EdgeCapacityMap capacitymap = boost::get(boost::edge_capacity, G);
+  ReverseEdgeMap revedgemap = boost::get(boost::edge_reverse, G);
+  ResidualCapacityMap rescapacitymap = boost::get(boost::edge_residual_capacity, G);
+  EdgeAdder eaG(G, capacitymap, revedgemap);
 
   Vertex source = boost::add_vertex(G);
   Vertex target = boost::add_vertex(G);
@@ -95,34 +94,16 @@ void testcases() {
   }
   for (int path_index = 0; path_index < n_paths; path_index++) {
     std::cin >> location_a >> location_b >> n_soldiers_min >> n_soldiers_max;
-    // eaG.addEdge(location_a, location_b, n_soldiers_max - n_soldiers_min);
-    eaG.addEdge(location_a, location_b, n_soldiers_max);
+    eaG.addEdge(location_a, location_b, n_soldiers_max - n_soldiers_min);
+    eaG.addEdge(source, location_b, n_soldiers_min);
+    eaG.addEdge(location_a, target, n_soldiers_min);
+    total_n_soldiers_min_eddges += n_soldiers_min;
   }
 
-	// Calculate flow
-	// If not called otherwise, the flow algorithm uses the interior properties
-	// - edge_capacity, edge_reverse (read access),
-	// - edge_residual_capacity (read and write access).
-	long flow1 = boost::push_relabel_max_flow(G, source, target);
-	// long flow2 = boost::edmonds_karp_max_flow(G, source, target);
-	// std::cout << "(push relabel max flow) " << flow1 << " == " << flow2 << " (Edmonds Karp max flow)" << std::endl;
-
-	// // Iterate over all the edges to print the flow along them
-	// EdgeIt ebeg, eend;
-  // int count = 0;
-	// for (tie(ebeg, eend) = edges(G); ebeg != eend; ++ebeg) {
-  //   if (boost::source(*ebeg, G) != source && boost::target(*ebeg, G) == inner_target) {
-  //     count += capacitymap[*ebeg] - rescapacitymap[*ebeg];
-  //   }
-		// std::cout << "edge from " << boost::source(*ebeg, G) << " to " << boost::target(*ebeg, G)
-		// 		  << " has left for " << capacitymap[*ebeg] - rescapacitymap[*ebeg] << " more units of flow." << std::endl;
-	//}
-
-  if (flow1 == total_n_soldiers_min) {
+  long flow = boost::push_relabel_max_flow(G, source, target);
+  if (flow >= total_n_soldiers_min + total_n_soldiers_min_eddges) {
     std::cout << "yes" << std::endl;
   } else {
-    // std::cout << "Flow:" << flow1 << std::endl;
-    // std::cout << "Total soldier required: " << total_n_soldiers_min << std::endl;
     std::cout << "no" << std::endl;
   }
 
