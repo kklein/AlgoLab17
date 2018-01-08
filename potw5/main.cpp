@@ -20,10 +20,10 @@
 // BGL includes
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
-#include <boost/graph/prim_minimum_spanning_tree.hpp>
-#include <boost/graph/kruskal_min_spanning_tree.hpp>
-#include <boost/graph/connected_components.hpp>
-#include <boost/graph/max_cardinality_matching.hpp>
+// #include <boost/graph/prim_minimum_spanning_tree.hpp>
+// #include <boost/graph/kruskal_min_spanning_tree.hpp>
+// #include <boost/graph/connected_components.hpp>
+// #include <boost/graph/max_cardinality_matching.hpp>
 // Namespaces
 using namespace std;
 using namespace boost;
@@ -32,7 +32,7 @@ using namespace boost;
 // BGL Graph definitions
 // =====================
 // Graph Type, OutEdgeList Type, VertexList Type, (un)directedS
-typedef adjacency_list<vecS, vecS, directedS,		// Use vecS for the VertexList! Choosing setS for the OutEdgeList disallows parallel edges.
+typedef adjacency_list<vecS, vecS, undirectedS,		// Use vecS for the VertexList! Choosing setS for the OutEdgeList disallows parallel edges.
 		no_property,				// interior properties of vertices
 		property<edge_weight_t, int> 		// interior properties of edges
 		>					Graph;
@@ -43,35 +43,51 @@ typedef graph_traits<Graph>::out_edge_iterator		OutEdgeIt;	// to iterate over al
 typedef property_map<Graph, edge_weight_t>::type	WeightMap;	// property map to access the interior property edge_weight_t
 
 
-// Functions
-// =========
+void update_weight(WeightMap &weightmap, Edge e, bool success, int weight) {
+  if (!success) {
+    // Edge already existed.
+    weightmap[e] = min(weightmap[e], weight);
+  } else {
+    weightmap[e] = weight;
+  }
+}
+
 void testcase() {
-  int n_nodes, n_edges, n_rivers, origin, destination;
-  cin >> n_nodes >> n_edges >> n_rivers >> origin >> destination;
-  Graph G(2 * n_nodes);
+  int n_cities, n_edges, n_req_rivers, origin, destination;
+  cin >> n_cities >> n_edges >> n_req_rivers >> origin >> destination;
+  // V = cities X {0,...,n_req_rivers}
+  // Each node in the graph represents a city and a number of rivers visited
+  // thus far.
+  // City with 4 visited rivers is access via
+  // (1 + n_req_rivers) * city_index + 4
+  Graph G((1 + n_req_rivers) * n_cities);
   WeightMap weightmap = get(edge_weight, G);
   int location_a, location_b, weight, is_river;
+  Edge e;
+  bool success;
+  
   for (int edge_index = 0; edge_index < n_edges; edge_index++) {
-    Edge e;	bool success;
     cin >> location_a >> location_b >> weight >> is_river;
+    // We can just as well an edge from (location_a, river_count) to
+    // (location_b, river_count) if the edge is a river - this will only
+    // increase the number of visited rivers.
+    for (int river_count = 0; river_count <= n_req_rivers; river_count++) {
+      tie(e, success) = add_edge(
+          (1 + n_req_rivers) * location_a + river_count,
+          (1 + n_req_rivers) * location_b + river_count, G);
+      update_weight(weightmap, e, success, weight);
+    }
     if (is_river == 1) {
-      tie(e, success) = add_edge(2 * location_a, 2 * location_b + 1, G);
-      weightmap[e] = weight;
-      tie(e, success) = add_edge(2 * location_a + 1, 2 * location_b + 1, G);
-      weightmap[e] = weight;
-      tie(e, success) = add_edge(2 * location_b, 2 * location_a + 1, G);
-      weightmap[e] = weight;
-      tie(e, success) = add_edge(2 * location_b + 1, 2 * location_a + 1, G);
-      weightmap[e] = weight;
-    } else {
-      tie(e, success) = add_edge(2 * location_a, 2 * location_b, G);
-      weightmap[e] = weight;
-      tie(e, success) = add_edge(2 * location_a + 1, 2 * location_b + 1, G);
-      weightmap[e] = weight;
-      tie(e, success) = add_edge(2 * location_b, 2 * location_a, G);
-      weightmap[e] = weight;
-      tie(e, success) = add_edge(2 * location_b + 1, 2 * location_a + 1, G);
-      weightmap[e] = weight;
+      for (int river_count = 0; river_count < n_req_rivers; river_count++) {
+        tie(e, success) = add_edge(
+            (1 + n_req_rivers) * location_a + river_count,
+            (1 + n_req_rivers) * location_b + river_count + 1, G);
+        update_weight(weightmap, e, success, weight);
+        tie(e, success) = add_edge(
+          (1 + n_req_rivers) * location_b + river_count,
+          (1 + n_req_rivers) * location_a + river_count + 1, G);
+        update_weight(weightmap, e, success, weight);
+      }
     }
   }
 
@@ -79,14 +95,14 @@ void testcase() {
 
   // Dijkstra shortest paths
   // =======================
-  vector<Vertex> predmap(2 * n_nodes);	// We will use this vector as an Exterior Property Map: Vertex -> Dijkstra Predecessor
-	vector<int> distmap(2 * n_nodes);		// We will use this vector as an Exterior Property Map: Vertex -> Distance to source
-	Vertex start = 2 * origin;
+  vector<Vertex> predmap((1 + n_req_rivers) * n_cities);	// We will use this vector as an Exterior Property Map: Vertex -> Dijkstra Predecessor
+	vector<int> distmap((1 + n_req_rivers) * n_cities);		// We will use this vector as an Exterior Property Map: Vertex -> Distance to source
+	Vertex start = (1 + n_req_rivers) * origin;
 	dijkstra_shortest_paths(G, start, // We MUST provide at least one of the two maps
 		predecessor_map(make_iterator_property_map(predmap.begin(), get(vertex_index, G))).	// predecessor map as Named Parameter
 		distance_map(make_iterator_property_map(distmap.begin(), get(vertex_index, G))));	// distance map as Named Parameter
 
-  cout << distmap[2 * destination + 1] << endl;
+  cout << distmap[(1 + n_req_rivers) * destination + n_req_rivers] << endl;
 }
 
 int main() {
