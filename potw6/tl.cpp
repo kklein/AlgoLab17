@@ -1,19 +1,21 @@
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/number_utils.h>
 #include <iostream>
 #include <stdexcept>
 
-typedef CGAL::Exact_predicates_exact_constructions_kernel K;
-typedef K::Point_2 P;
-typedef K::Ray_2 R;
-typedef K::Segment_2 S;
+typedef CGAL::Exact_predicates_exact_constructions_kernel EK;
+typedef CGAL::Exact_predicates_inexact_constructions_kernel IK;
+typedef EK::Point_2 P;
+typedef EK::Ray_2 R;
+typedef EK::Segment_2 S;
 
 struct intersection {
-  K::FT x;
-  K::FT y;
+  EK::FT x;
+  EK::FT y;
   int biker_a;
   int biker_b;
-  K::FT min_distance;
+  EK::FT min_distance;
   int last_biker;
 };
 
@@ -47,10 +49,10 @@ void test_case() {
       if (CGAL::do_intersect(rays[biker_a], rays[biker_b])) {
         auto o = CGAL::intersection(rays[biker_a], rays[biker_b]);
         if (const P* op = boost::get<P>(&*o)) {
-          K::FT distance_a = CGAL::abs((op->y() - origins[biker_a]));
-          K::FT distance_b = CGAL::abs((op->y() - origins[biker_b]));
+          EK::FT distance_a = CGAL::abs((op->y() - origins[biker_a]));
+          EK::FT distance_b = CGAL::abs((op->y() - origins[biker_b]));
           int last_biker;
-          K::FT min_distance;
+          EK::FT min_distance;
           // Apply right before left rule.
           if (distance_a < distance_b or (distance_a == distance_b and
               origins[biker_a] < origins[biker_b])) {
@@ -70,13 +72,6 @@ void test_case() {
 
   // Sort intersections according to the time of the intersection.
   std::sort(intersections.begin(), intersections.end(), compare_by_time);
-
-  // for (int intersection_index = 0; intersection_index < intersections.size();
-  //     intersection_index++) {
-  //   intersection i = intersections[intersection_index];
-    // std::cout << "intersection between " << i.biker_a << " and " << i.biker_b <<
-        // " at x=" << i.x << " y= " << i.y << std::endl;
-  // }
 
   std::vector<bool> biker_alive(n_bikers, true);
 
