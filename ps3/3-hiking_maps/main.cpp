@@ -1,8 +1,10 @@
 #include <algorithm>
 #include <CGAL/Boolean_set_operations_2.h>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <climits>
 #include <iostream>
 #include <vector>
+// #include "prettyprint.hpp"
 
 //TODO(kevinkle): remove
 #include <boost/optional/optional_io.hpp>
@@ -13,61 +15,102 @@ typedef K::Point_2 P;
 typedef K::Segment_2 S;
 typedef K::Triangle_2 T;
 
+int pointers_to_distance(std::vector<int> &map_coverage_position,
+    std::vector<std::vector<int> > &map_coverage) {
+  std::vector<int> map_parts(map_coverage_position.size());
+  for (int leg = 0; leg < map_coverage_position.size(); leg++) {
+    map_parts[leg] = map_coverage[leg][map_coverage_position[leg]];
+  }
+  return 1 + *std::max_element(map_parts.begin(), map_parts.end()) - *std::min_element(map_parts.begin(), map_parts.end());
+}
+
+bool triangle_contains_segment(std::vector<P> &t, S &s) {
+  P p1 = s.source();
+  P p2 = s.target();
+  return !CGAL::right_turn(t[0], t[1], p1) && !CGAL::right_turn(t[2], t[3], p1)
+      && !CGAL::right_turn(t[4], t[5], p1) && !CGAL::right_turn(t[0], t[1], p2)
+      && !CGAL::right_turn(t[2], t[3], p2) && !CGAL::right_turn(t[4], t[5], p2);
+}
+
+int move_to_next_distance(std::vector<int> &map_coverage_position,
+    std::vector<std::vector<int> > &map_coverage) {
+  int min_value = INT_MAX;
+  int min_leg;
+  for (int leg = 0; leg < map_coverage_position.size(); leg++) {
+    if (map_coverage[leg][map_coverage_position[leg]] < min_value) {
+      min_value = map_coverage[leg][map_coverage_position[leg]];
+      min_leg = leg;
+    }
+  }
+  if (map_coverage_position[min_leg] + 1 >= map_coverage[min_leg].size()) {
+    return INT_MAX;
+  } else {
+    map_coverage_position[min_leg]++;
+    return pointers_to_distance(map_coverage_position, map_coverage);
+  }
+}
+
 void test_run() {
   int n_triangle_points = 6;
   int n_triangle_lines = 3;
   int n_points, n_map_parts;
   std::cin >> n_points >> n_map_parts;
 
-  std::vector<S> legs(n_points - 1);
+  std::vector<S> leg_segments(n_points - 1);
 
   int x1, x2, y1, y2;
-  std::cin >> x1>> y1;
+  std::cin >> x1 >> y1;
   for (int leg = 0; leg < n_points - 1; leg++) {
     std::cin >> x2 >> y2;
-    legs[leg] = S(P(x1, y1), P(x2, y2));
+    leg_segments[leg] = S(P(x1, y1), P(x2, y2));
     x1 = x2;
-    y2 = y1;
+    y1 = y2;
   }
 
-  int earliest_map_part = n_map_parts;
-  int last_map_part = 0;
-  bool map_part_taken = false;
+  // Per leg, lists all maps covering it.
+  std::vector<std::vector<int> > map_coverage(n_points - 1);
 
   for (int map_part = 0; map_part < n_map_parts; map_part++) {
     std::vector<P> triangle_points(n_triangle_points);
-    std::vector<L> triangle_lines(n_triangle_lines);
     int x, y;
     for (int point = 0; point < n_triangle_points; point++) {
-      std::cin >> x >> y;
-      triangle_points[point] = P(x ,y);
+      std::cin >> triangle_points[point];
     }
-    for (int line = 0; line < n_triangle_lines; line++) {
-      triangle_lines[line] = L(triangle_points[2 * line], triangle_points[2 * line + 1]);
-    }
-    auto intersection1 = CGAL::intersection(triangle_lines[0], triangle_lines[1]);
-    auto intersection2 =  CGAL::intersection(triangle_lines[1], triangle_lines[2]);
-    auto intersection3 =  CGAL::intersection(triangle_lines[2], triangle_lines[0]);
-    if (const P* intersection_point_1 = boost::get<P>(&*intersection1)) {
-      if (const P* intersection_point_2 = boost::get<P>(&*intersection2)) {
-        if (const P* intersection_point_3 = boost::get<P>(&*intersection3)) {
-          T triangle = T(*intersection_point_1, *intersection_point_2, *intersection_point_3);
-          for (int leg = 0; leg < n_points - 1; leg++) {
-            if (CGAL::do_intersect(legs[leg], triangle)) {
-              map_part_taken = true;
-              earliest_map_part = std::min(earliest_map_part, map_part);
-              last_map_part = std::max(last_map_part, map_part);
-            }
-          }
-        }
+    // Ensure correct order for orientation tests.
+    for (int j = 0; j < n_triangle_points; j += 2){
+      if (CGAL::right_turn(triangle_points[j], triangle_points[j + 1],
+          triangle_points[(j + 2) % 6])){
+        std::swap(triangle_points[j],triangle_points[j + 1]);
       }
     }
-   }
-  if (map_part_taken) {
-    std::cout << "first: " << earliest_map_part << " ,last: " << last_map_part << std::endl;
-    std::cout << (last_map_part - earliest_map_part) << std::endl;
+
+    for (int leg = 0; leg < n_points - 1; leg++) {
+      if (triangle_contains_segment(triangle_points, leg_segments[leg])) {
+        // std::cout << "triangle contains segment!" << std::endl;
+        map_coverage[leg].push_back(map_part);
+      }
+    }
   }
-  return;
+
+  bool depleted = false;
+  // Per leg, position in map_coverage.
+  std::vector<int> map_coverage_position(n_points - 1, 0);
+
+  for (int leg = 0; leg < n_points - 1; leg++) {
+    std::sort(map_coverage[leg].begin(), map_coverage[leg].end());
+  }
+  int min_distance = pointers_to_distance(map_coverage_position, map_coverage);
+  int next_distance;
+
+  while (!depleted) {
+    next_distance = move_to_next_distance(map_coverage_position, map_coverage);
+    min_distance = std::min(min_distance, next_distance);
+    if (next_distance == INT_MAX) {
+      depleted = true;
+    }
+  }
+
+  std::cout << min_distance << std::endl;
 }
 
 int main() {
