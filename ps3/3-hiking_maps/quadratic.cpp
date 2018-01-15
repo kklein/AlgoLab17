@@ -7,7 +7,7 @@
 // #include "prettyprint.hpp"
 
 //TODO(kevinkle): remove
-#include <boost/optional/optional_io.hpp>
+// #include <boost/optional/optional_io.hpp>
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef K::Line_2 L;
@@ -15,39 +15,12 @@ typedef K::Point_2 P;
 typedef K::Segment_2 S;
 typedef K::Triangle_2 T;
 
-int pointers_to_distance(std::vector<int> &map_coverage_position,
-    std::vector<std::vector<int> > &map_coverage) {
-  std::vector<int> map_parts(map_coverage_position.size());
-  for (int leg = 0; leg < map_coverage_position.size(); leg++) {
-    map_parts[leg] = map_coverage[leg][map_coverage_position[leg]];
-  }
-  return 1 + *std::max_element(map_parts.begin(), map_parts.end()) - *std::min_element(map_parts.begin(), map_parts.end());
-}
-
 bool triangle_contains_segment(std::vector<P> &t, S &s) {
   P p1 = s.source();
   P p2 = s.target();
   return !CGAL::right_turn(t[0], t[1], p1) && !CGAL::right_turn(t[2], t[3], p1)
       && !CGAL::right_turn(t[4], t[5], p1) && !CGAL::right_turn(t[0], t[1], p2)
       && !CGAL::right_turn(t[2], t[3], p2) && !CGAL::right_turn(t[4], t[5], p2);
-}
-
-int move_to_next_distance(std::vector<int> &map_coverage_position,
-    std::vector<std::vector<int> > &map_coverage) {
-  int min_value = INT_MAX;
-  int min_leg;
-  for (int leg = 0; leg < map_coverage_position.size(); leg++) {
-    if (map_coverage[leg][map_coverage_position[leg]] < min_value) {
-      min_value = map_coverage[leg][map_coverage_position[leg]];
-      min_leg = leg;
-    }
-  }
-  if (map_coverage_position[min_leg] + 1 >= map_coverage[min_leg].size()) {
-    return INT_MAX;
-  } else {
-    map_coverage_position[min_leg]++;
-    return pointers_to_distance(map_coverage_position, map_coverage);
-  }
 }
 
 void test_run() {
@@ -67,8 +40,8 @@ void test_run() {
     y1 = y2;
   }
 
-  // Per leg, lists all maps covering it.
-  std::vector<std::vector<int> > map_coverage(n_points - 1);
+  // Per map, list all legs covered.
+  std::vector<std::vector<int> > leg_coverage(n_map_parts);
 
   for (int map_part = 0; map_part < n_map_parts; map_part++) {
     std::vector<P> triangle_points(n_triangle_points);
@@ -85,30 +58,48 @@ void test_run() {
 
     for (int leg = 0; leg < n_points - 1; leg++) {
       if (triangle_contains_segment(triangle_points, leg_segments[leg])) {
-        map_coverage[leg].push_back(map_part);
+        leg_coverage[map_part].push_back(leg);
       }
     }
   }
 
-  bool depleted = false;
-  // Per leg, position in map_coverage.
-  std::vector<int> map_coverage_position(n_points - 1, 0);
+  // All map parts from [left_map_pointer, right_map_pointer[ are currently
+  // included.
+  int left_map_pointer = 0;
+  int right_map_pointer = 0;
+  // Counts the number maps covering a leg in current selection.
+  std::vector<int> covered(n_points - 1, 0);
+  // Counts the number of uncovered legs in current selection.
+  int n_uncovered = n_points - 1;
+  bool done = false;
+  int shortest_range = INT_MAX;
 
-  for (int leg = 0; leg < n_points - 1; leg++) {
-    std::sort(map_coverage[leg].begin(), map_coverage[leg].end());
-  }
-  int min_distance = pointers_to_distance(map_coverage_position, map_coverage);
-  int next_distance;
+  while (!done and left_map_pointer < n_map_parts) {
+    if (n_uncovered == 0) {
+      shortest_range = std::min(shortest_range,
+          right_map_pointer - left_map_pointer);
+      for (int leg: leg_coverage[left_map_pointer]) {
+        covered[leg]--;
+        if (covered[leg] == 0) {
+          n_uncovered++;
+        }
+      }
+      left_map_pointer++;
 
-  while (!depleted) {
-    next_distance = move_to_next_distance(map_coverage_position, map_coverage);
-    min_distance = std::min(min_distance, next_distance);
-    if (next_distance == INT_MAX) {
-      depleted = true;
+    } else if (right_map_pointer < n_map_parts) {
+      for (int leg: leg_coverage[right_map_pointer]) {
+        covered[leg]++;
+        if (covered[leg] == 1) {
+          n_uncovered--;
+        }
+      }
+      right_map_pointer++;
+    } else {
+      done = true;
     }
   }
 
-  std::cout << min_distance << std::endl;
+  std::cout << shortest_range << std::endl;
 }
 
 int main() {
