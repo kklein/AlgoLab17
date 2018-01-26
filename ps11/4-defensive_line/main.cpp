@@ -34,26 +34,13 @@ void test_case() {
   std::vector<int> defenses(n_defenders);
   for (int defender_index = 0; defender_index < n_defenders; defender_index++) {
     std::cin >> defenses[defender_index];
+    set_left_segment_index_and_sum(defender_index, strength, defenses);
   }
 
   table[0][0] = defenses[0] == strength ? 1 : 0;
 
-  for (int defender_index = 1; defender_index < n_defenders; defender_index++) {
-    set_left_segment_index_and_sum(defender_index, strength, defenses);
-    int left_segment_index = left_segment_indeces[defender_index];
-    int segment_sum = left_segment_sums[defender_index];
-    int n_attacked_defenders = defender_index - left_segment_index + 1;
-    int not_taken = table[defender_index - 1][0];
-    if (left_segment_index >= 0 and segment_sum == strength and
-        n_attacked_defenders > not_taken) {
-      table[defender_index][0] = n_attacked_defenders;
-    } else {
-      table[defender_index][0] = not_taken;
-    }
-  }
-
-  for (int attacker_index = 1; attacker_index < n_attackers; attacker_index++) {
-    table[attacker_index][0] = table[attacker_index - 1][0];
+  for (int attacker_index = 0; attacker_index < n_attackers; attacker_index++) {
+    table[0][attacker_index] = table[0][std::max(0, attacker_index - 1)];
     for (int defender_index = 1; defender_index < n_defenders;
         defender_index++) {
       int left_segment_index = left_segment_indeces[defender_index];
