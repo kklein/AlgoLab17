@@ -7,10 +7,11 @@
 
 std::vector<int> left_segment_indeces;
 std::vector<int> left_segment_sums;
+std::vector<int> subset_sums;
 
 int set_left_segment_index_and_sum(int defender_index, int strength,
     std::vector<int> &defenses) {
-  if (left_segment_indeces[defender_index] == -2) {
+  if (left_segment_indeces[defender_index] == -2 and defender_index == 0) {
     int left_segment_index = defender_index;
     int segment_sum = defenses[defender_index];
     while (segment_sum < strength and left_segment_index > 0) {
@@ -20,6 +21,23 @@ int set_left_segment_index_and_sum(int defender_index, int strength,
     left_segment_indeces[defender_index] = left_segment_index;
     left_segment_sums[defender_index] = segment_sum;
   }
+
+  if (defender_index > 0) {
+    int aux = left_segment_sums[defender_index - 1] + defenses[defender_index];
+
+    if (aux <= strength) {
+      left_segment_indeces[defender_index] =
+          left_segment_indeces[defender_index -1];
+      left_segment_sums[defender_index] = aux;
+    }
+    int left_pointer = left_segment_indeces[defender_index - 1];
+    while (subset_sums[defender_index] - subset_sums[left_pointer - 1] > strength) {
+      left_pointer++;
+    }
+    left_segment_indeces[defender_index] = left_pointer;
+    left_segment_sums[defender_index] = subset_sums[defender_index] -
+        subset_sums[left_pointer - 1];
+  }
 }
 
 void test_case() {
@@ -28,12 +46,16 @@ void test_case() {
 
   left_segment_indeces = std::vector<int>(n_defenders, -2);
   left_segment_sums = std::vector<int>(n_defenders, -2);
+  subset_sums = std::vector<int>(n_defenders, -2);
 
   std::vector<std::vector<int> >
       table(n_defenders, std::vector<int>(n_attackers));
   std::vector<int> defenses(n_defenders);
+  int subset_sum = 0;
   for (int defender_index = 0; defender_index < n_defenders; defender_index++) {
     std::cin >> defenses[defender_index];
+    subset_sum += defenses[defender_index];
+    subset_sums[defender_index] = subset_sum;
     set_left_segment_index_and_sum(defender_index, strength, defenses);
   }
 
