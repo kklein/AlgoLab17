@@ -111,7 +111,7 @@ void testcases() {
 
 // Main function to loop over the testcases
 int main() {
-	std::ios_base::sync_with_stdio(false);
+  std::ios_base::sync_with_stdio(false);
   int n_test_cases;
   std::cin >> n_test_cases;
   for (int test_case_index = 0; test_case_index < n_test_cases; test_case_index++) {
